@@ -12,6 +12,6 @@ COPY . .
 
 RUN yarn build
 
-# RUN yarn migrate:run
+RUN yarn migrate:run
 
 CMD ["yarn", "start:worker"]

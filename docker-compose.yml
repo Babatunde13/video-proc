@@ -72,6 +72,7 @@ services:
     depends_on:
       - postgres
       - redis
+      - api # this is because we need to be sure that the migration is up to date(and i don't want to install prisma client in this container)
     environment:
       NODE_ENV: production
       DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-video_db}

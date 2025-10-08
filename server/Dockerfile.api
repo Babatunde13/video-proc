@@ -12,6 +12,4 @@ RUN yarn build
 
 EXPOSE 3000
 
-# RUN yarn migrate:run
-
 CMD ["yarn", "start:prod"]
