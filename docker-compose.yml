@@ -1,0 +1,103 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: video_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-video_proc_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: video_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+    - redis_data:/data
+
+  localstack:
+    image: localstack/localstack
+    container_name: localstack
+    ports:
+      - "4566:4566" # Edge port (AWS SDKs connect here)
+      - "4571:4571"
+    environment:
+      - SERVICES=s3
+      - DEBUG=1
+      - LOCALSTACK_HOST=localstack
+      - AWS_DEFAULT_REGION=${AWS_REGION}
+      - DATA_DIR=/var/lib/localstack
+    restart: always
+    volumes:
+      - "./localstack/init:/etc/localstack/init/ready.d"  # init scripts
+      - "localstack_data:/var/lib/localstack"
+
+  api:
+    build:
+      context: server
+      dockerfile: Dockerfile.api
+    container_name: api
+    depends_on:
+      - postgres
+      - redis
+      - localstack
+    environment:
+      PORT: 3000
+      NODE_ENV: production
+      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-video_proc_db}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      AWS_S3_BUCKET: ${AWS_BUCKET}
+      AWS_REGION: ${AWS_REGION}
+      AWS_ACCESS_KEY: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_ENDPOINT: http://localstack:4566
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES: ${JWT_EXPIRES}
+    ports:
+      - "3000:3000"
+    restart: always
+
+  worker:
+    build:
+      context: server
+      dockerfile: Dockerfile.worker
+    container_name: worker
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-video_db}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      AWS_S3_BUCKET: ${AWS_BUCKET}
+      AWS_REGION: ${AWS_REGION}
+      AWS_ACCESS_KEY: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_ENDPOINT: http://localstack:4566
+    restart: always
+
+  client:
+    build:
+      context: client
+      dockerfile: Dockerfile
+    container_name: client
+    environment:
+      - VITE_API_URL=http://api:3000   # 👈 Backend API URL for Vite proxy
+    ports:
+      - "5173:5173"
+    depends_on:
+      - api
+    restart: always
+
+volumes:
+  pgdata:
+  redis_data:
+  localstack_data:

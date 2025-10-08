@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String              @id @db.Char(26)
+  email        String              @unique
+  name         String
+  password     String
+  created_at   DateTime            @default(now()) @db.Timestamptz
+  updated_at   DateTime?           @updatedAt @db.Timestamptz
+
+  videos Video[]
+
+  @@index([created_at])
+  @@map("users")
+}
+
+model Video {
+  id                String              @id @db.Char(26)
+  user_id           String              
+  s3_key            String              @unique
+  upload_id         String
+  filename          String
+  description       String?
+  thumbnail_url     String?
+  hls_manifest_url  String?
+  content_type      String
+  status            String
+  size_bytes        Float // larger size
+  created_at        DateTime            @default(now()) @db.Timestamptz
+  updated_at        DateTime?           @updatedAt @db.Timestamptz
+
+  user              User                @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([created_at])
+  @@map("videos")
+}
+
