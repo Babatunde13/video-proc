@@ -16,6 +16,7 @@ Welcome to the Video Stream Server, a robust and scalable solution for managing,
 - [Background Workers (BullMQ)](#background-workers-bullmq)
 - [Database](#database)
 - [Environment Variables](#environment-variables)
+- [References](#references)
 
 ## Overview
 The Video Proc provides a complete workflow for users to upload large video files, which are then processed, transcoded, and made available for adaptive bitrate streaming. It handles multi-part uploads to S3, manages video metadata in PostgreSQL, and uses a dedicated worker system for CPU-intensive tasks like video transcoding. It provides a simple frontend UI to test the uploading and streaming of large videos
@@ -130,3 +131,8 @@ All sensitive configurations are managed via environment variables. Refer to the
 - `VITE_API_URL`: Backend API URL
 
 The docker compose correctly sets the default environment variables.
+
+## References
+1. [ffmpeg](https://www.ffmpeg.org/ffmpeg.html#Transcoding)
+2. [hls.js](https://github.com/video-dev/hls.js)
+3. [ultimate guide to ffmpeg](https://img.ly/blog/ultimate-guide-to-ffmpeg/)
