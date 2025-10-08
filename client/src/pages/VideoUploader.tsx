@@ -7,7 +7,7 @@ import { completeUpload, generatePresignUrl, getUploadedParts, initiateLargeUplo
 let PART_SIZE = 8 * 1024 * 1024; // 8MB
 const CONCURRENCY = 4;
 
-window.Buffer = Buffer
+(window as any).Buffer = Buffer
 
 type UploadState = {
   uploadId: string;
