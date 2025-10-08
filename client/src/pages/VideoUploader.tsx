@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { crc32 } from "crc";
 import { Buffer } from "buffer";
-import { completeUpload, generatePresignUrl, getUploadedParts, initiateLargeUpload } from "../api";
+import { abortUpload, completeUpload, generatePresignUrl, getUploadedParts, initiateLargeUpload } from "../api";
 
 let PART_SIZE = 8 * 1024 * 1024; // 8MB
 const CONCURRENCY = 4;
@@ -87,7 +87,10 @@ export default function VideoUploader() {
 
     await new Promise<void>((resolve, reject) => {
       const next = async () => {
-        if (controllerRef.current?.signal.aborted) return reject(new Error("aborted"));
+        if (controllerRef.current?.signal.aborted) {
+          await abortUpload(state!.s3Key, state!.uploadId)
+          return reject(new Error("aborted"));
+        }
         if (idx >= partsToUpload.length && active === 0) return resolve();
         while (active < CONCURRENCY && idx < partsToUpload.length) {
           const partNumber = partsToUpload[idx++];

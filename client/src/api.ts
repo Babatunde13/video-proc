@@ -45,9 +45,17 @@ export async function generatePresignUrl(s3Key: string, uploadId: string, partNu
   return res.data.data.url;
 }
 
-export async function completeUpload(s3Key: string, uploadId: string, filename: string, contentType: string, sizeBytes: number, parts: { part_number: number; etag: string }[]): Promise<string> {
+export async function completeUpload(s3Key: string, uploadId: string, filename: string, contentType: string, sizeBytes: number, parts: { part_number: number; etag: string }[]) {
   const token = localStorage.getItem("token");
   const res = await api.post(`/uploads/${encodeURIComponent(s3Key)}/complete`, { upload_id: uploadId, parts, filename, content_type: contentType, size_bytes: sizeBytes }, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return res.data.data;
+}
+
+export async function abortUpload(s3Key: string, uploadId: string): Promise<string> {
+  const token = localStorage.getItem("token");
+  const res = await api.post(`/uploads/${encodeURIComponent(s3Key)}/abort`, { upload_id: uploadId }, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return res.data.data;
