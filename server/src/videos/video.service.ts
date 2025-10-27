@@ -61,10 +61,6 @@ export class VideoService {
     return this.s3Client.send(command);
   }
 
-  private rewriteToPublic(url: string) {
-    return url.replace("localstack:4566", "localhost:4566");
-  }
-
   private async uploadPart(
     bucket: string,
     key: string,
@@ -83,7 +79,7 @@ export class VideoService {
     const url = await getSignedUrl(this.s3Client, command, {
       expiresIn: expiresInSec,
     });
-    return this.rewriteToPublic(url);
+    return url;
   }
 
   listParts(bucket: string, key: string, uploadId: string) {

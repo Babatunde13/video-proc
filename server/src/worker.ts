@@ -198,7 +198,7 @@ class VideoProcWorker {
       await Promise.all(uploadPromises);
 
       // Update DB
-      const baseUrl = `http://localhost:4566/${this.bucket}`; // because it's on localstack
+      const baseUrl = `${envs.Aws.endpoint}/${this.bucket}`;
       const manifestUrl = `${baseUrl}/processed/${videoId}/master.m3u8`;
       const thumbUrl = `${baseUrl}/processed/${videoId}/thumb.jpg`;
 

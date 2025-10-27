@@ -57,12 +57,14 @@ services:
       AWS_REGION: ${AWS_REGION}
       AWS_ACCESS_KEY: ${AWS_ACCESS_KEY_ID}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
-      AWS_ENDPOINT: http://localstack:4566
+      AWS_ENDPOINT: http://localhost:4566
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRES: ${JWT_EXPIRES}
     ports:
       - "3000:3000"
     restart: always
+    extra_hosts:
+      - "localhost:host-gateway"  # for local development to access host machine
 
   worker:
     build:
@@ -82,7 +84,7 @@ services:
       AWS_REGION: ${AWS_REGION}
       AWS_ACCESS_KEY: ${AWS_ACCESS_KEY_ID}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
-      AWS_ENDPOINT: http://localstack:4566
+      AWS_ENDPOINT: http://localhost:4566
     restart: always
 
   client:
